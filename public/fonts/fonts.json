@@ -1,0 +1,190 @@
+[
+  {
+    "id": "pacifico",
+    "name": "Pacifico",
+    "file": "pacifico.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift",
+    "license": "OFL"
+  },
+  {
+    "id": "dancing",
+    "name": "Dancing Script",
+    "file": "dancing.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift",
+    "license": "OFL",
+    "weight": {
+      "min": 400.0,
+      "max": 700.0,
+      "single": 400.0,
+      "contour": 700.0
+    }
+  },
+  {
+    "id": "lobster",
+    "name": "Lobster",
+    "file": "lobster.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift",
+    "license": "OFL"
+  },
+  {
+    "id": "kaushan",
+    "name": "Kaushan Script",
+    "file": "kaushan.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift",
+    "license": "OFL"
+  },
+  {
+    "id": "yellowtail",
+    "name": "Yellowtail",
+    "file": "yellowtail.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift",
+    "license": "Apache-2.0"
+  },
+  {
+    "id": "sacramento",
+    "name": "Sacramento",
+    "file": "sacramento.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift (dünn)",
+    "license": "OFL"
+  },
+  {
+    "id": "neonderthaw",
+    "name": "Neonderthaw",
+    "file": "neonderthaw.ttf",
+    "kind": "outline",
+    "category": "Schreibschrift (dünn)",
+    "license": "OFL"
+  },
+  {
+    "id": "bebas",
+    "name": "Bebas Neue",
+    "file": "bebas.ttf",
+    "kind": "outline",
+    "category": "Serifenlos",
+    "license": "OFL"
+  },
+  {
+    "id": "montserrat",
+    "name": "Montserrat",
+    "file": "montserrat.ttf",
+    "kind": "outline",
+    "category": "Serifenlos",
+    "license": "OFL",
+    "weight": {
+      "min": 100.0,
+      "max": 900.0,
+      "single": 300,
+      "contour": 700
+    }
+  },
+  {
+    "id": "righteous",
+    "name": "Righteous",
+    "file": "righteous.ttf",
+    "kind": "outline",
+    "category": "Serifenlos",
+    "license": "OFL"
+  },
+  {
+    "id": "comfortaa",
+    "name": "Comfortaa",
+    "file": "comfortaa.ttf",
+    "kind": "outline",
+    "category": "Gerundet",
+    "license": "OFL",
+    "weight": {
+      "min": 300.0,
+      "max": 700.0,
+      "single": 300.0,
+      "contour": 700.0
+    }
+  },
+  {
+    "id": "quicksand",
+    "name": "Quicksand",
+    "file": "quicksand.ttf",
+    "kind": "outline",
+    "category": "Gerundet",
+    "license": "OFL",
+    "weight": {
+      "min": 300.0,
+      "max": 700.0,
+      "single": 300.0,
+      "contour": 700.0
+    }
+  },
+  {
+    "id": "baloo",
+    "name": "Baloo 2",
+    "file": "baloo.ttf",
+    "kind": "outline",
+    "category": "Gerundet",
+    "license": "OFL",
+    "weight": {
+      "min": 400.0,
+      "max": 800.0,
+      "single": 400.0,
+      "contour": 700
+    }
+  },
+  {
+    "id": "fredoka",
+    "name": "Fredoka",
+    "file": "fredoka.ttf",
+    "kind": "outline",
+    "category": "Gerundet",
+    "license": "OFL",
+    "weight": {
+      "min": 300.0,
+      "max": 700.0,
+      "single": 300.0,
+      "contour": 700.0
+    }
+  },
+  {
+    "id": "h-futural",
+    "name": "Hershey Futura Light",
+    "file": "h-futural.jhf",
+    "kind": "hershey",
+    "category": "Einlinien (Hershey)",
+    "license": "Public Domain"
+  },
+  {
+    "id": "h-futuram",
+    "name": "Hershey Futura Medium",
+    "file": "h-futuram.jhf",
+    "kind": "hershey",
+    "category": "Einlinien (Hershey)",
+    "license": "Public Domain"
+  },
+  {
+    "id": "h-rowmans",
+    "name": "Hershey Roman Simplex",
+    "file": "h-rowmans.jhf",
+    "kind": "hershey",
+    "category": "Einlinien (Hershey)",
+    "license": "Public Domain"
+  },
+  {
+    "id": "h-scripts",
+    "name": "Hershey Script Simplex",
+    "file": "h-scripts.jhf",
+    "kind": "hershey",
+    "category": "Einlinien (Hershey)",
+    "license": "Public Domain"
+  },
+  {
+    "id": "h-cursive",
+    "name": "Hershey Cursive",
+    "file": "h-cursive.jhf",
+    "kind": "hershey",
+    "category": "Einlinien (Hershey)",
+    "license": "Public Domain"
+  }
+]
