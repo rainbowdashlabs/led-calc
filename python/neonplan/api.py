@@ -812,3 +812,10 @@ def make_pdf(plan: dict, paper: str = "A4", parts=("overview", "front", "back"),
 
     set_lang(lang or plan.get("params", {}).get("lang"))
     return render_plan(plan, paper=paper, parts=parts)
+
+
+def make_dxf(plan: dict) -> str:
+    """DXF file of the plan for CNC milling (see dxf.py for the layers)."""
+    from .dxf import render_dxf
+
+    return render_dxf(plan)

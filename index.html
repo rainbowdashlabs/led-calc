@@ -2,11 +2,41 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LED-Neon Planer</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 24V8l10 16V8m6 0v16' fill='none' stroke='%23ff3cac' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#09090b" />
+    <meta name="color-scheme" content="dark" />
+
+    <title>LED-Neon Planer – Streifenlänge, Routing & Druckvorlage für Leuchtschriften</title>
+    <meta name="description" content="Plane LED-Neon-Streifen für Leuchtschriften direkt im Browser: Länge inkl. Rückseite, Biegeradius, Routing hinter der Platte und Druckvorlage im Maßstab 1:1 (A4 / A3)." />
+    <link rel="canonical" href="https://rainbowdashlabs.github.io/led-calc/" />
+
+    <!-- icons and install -->
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+
+    <!-- social media previews (Open Graph, used by most networks and messengers) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LED-Neon Planer" />
+    <meta property="og:url" content="https://rainbowdashlabs.github.io/led-calc/" />
+    <meta property="og:title" content="LED-Neon Planer" />
+    <meta property="og:description" content="Streifenlänge, Routing hinter der Platte und Druckvorlage für Leuchtschriften – direkt im Browser." />
+    <meta property="og:image" content="https://rainbowdashlabs.github.io/led-calc/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Neon-Schriftzug „Hallo“ auf einer Platte mit Routing hinter der Platte, daneben der Name LED-Neon Planer" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:locale:alternate" content="en_GB" />
+
+    <!-- X / Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LED-Neon Planer" />
+    <meta name="twitter:description" content="Streifenlänge, Routing hinter der Platte und Druckvorlage für Leuchtschriften – direkt im Browser." />
+    <meta name="twitter:image" content="https://rainbowdashlabs.github.io/led-calc/og-image.png" />
+    <meta name="twitter:image:alt" content="Neon-Schriftzug „Hallo“ auf einer Platte mit Routing hinter der Platte" />
   </head>
-  <body class="bg-zinc-950 text-zinc-100">
+  <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>

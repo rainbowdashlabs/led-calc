@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import BaseCard from '@/components/container/BaseCard.vue'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useEditor } from '@/composables/useEditor'
 import { usePlanner } from '@/composables/usePlanner'
 import { usePreviewState } from '@/composables/usePreviewState'
@@ -17,14 +18,17 @@ const { plan, progress } = usePlanner()
 const preview = usePreviewState()
 const editor = useEditor()
 const progressLabel = useProgressLabel()
+const { isCoarsePointer } = useBreakpoint()
 const svg = ref(null)
+// the stage takes the plate's aspect ratio (plus room for the dimensions), bounded by the screen
+const stageStyle = computed(() => (plan.value ? { aspectRatio: `${plan.value.plate.w * 1.12} / ${plan.value.plate.h * 1.12 + plan.value.plate.w * 0.05}` } : {}))
 </script>
 
 <template>
   <BaseCard :padded="false">
     <PreviewToolbar @fit="svg?.resetView()" />
     <EditorBar v-if="editor.active.value" />
-    <div class="relative h-[56vh] bg-black p-2">
+    <div class="stage" :style="stageStyle">
       <ProgressOverlay :active="progress.active" :fraction="progress.fraction" :label="progressLabel" />
       <PlanPreview
         ref="svg"
@@ -40,6 +44,7 @@ const svg = ref(null)
         :selected="editor.selected.value"
         :draft="editor.draft.value"
         :snap-target="editor.snapTarget.value"
+        :coarse-pointer="isCoarsePointer"
         @hover="preview.hover = $event"
         @select="editor.selected.value = $event"
         @move-handle="editor.moveHandle"
@@ -56,3 +61,28 @@ const svg = ref(null)
     <PointMenu />
   </BaseCard>
 </template>
+
+<style scoped>
+@reference "@/style.css";
+
+.stage {
+  @apply relative bg-black p-1 sm:p-2;
+  width: 100%;
+  min-height: 14rem;
+  max-height: 70dvh;
+}
+
+@media (min-width: 64rem) {
+  .stage {
+    min-height: 22rem;
+    max-height: min(72dvh, 52rem);
+  }
+}
+
+@media print {
+  .stage {
+    background: white;
+    max-height: none;
+  }
+}
+</style>

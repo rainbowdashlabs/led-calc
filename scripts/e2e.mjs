@@ -85,7 +85,13 @@ await page.mouse.move(5, 5)
 await page.waitForFunction(() => !document.querySelector('[role=menu]'), { timeout: 5000 })
 
 // undo / redo of moving a point
-const handlePos = () => page.$$eval('svg .cursor-move', (c) => c.map((e) => `${e.getAttribute('cx') ?? e.getAttribute('x')},${e.getAttribute('cy') ?? e.getAttribute('y')}`).join(' '))
+// centre of every point marker (circles and squares; the marker size depends on the selection)
+const handlePos = () => page.$$eval('svg .cursor-move', (c) => c.map((e) => {
+  const b = e.getBBox()
+  return [b.x + b.width / 2, b.y + b.height / 2]
+}))
+/** Same points within a small tolerance (marker sizes change with the selection). */
+const samePositions = (a, b) => a.length === b.length && a.every(([x, y], i) => Math.hypot(x - b[i][0], y - b[i][1]) < 0.2)
 const original = await handlePos()
 const mb = await (await page.$$('svg .cursor-move'))[20].boundingBox()
 await page.mouse.move(mb.x + mb.width / 2, mb.y + mb.height / 2)
@@ -94,19 +100,19 @@ await page.mouse.move(mb.x + 30, mb.y + 30, { steps: 6 })
 await page.mouse.up()
 await new Promise((r) => setTimeout(r, 500))
 const moved = await handlePos()
-if (moved === original) throw new Error('point did not move')
+if (samePositions(moved, original)) throw new Error('point did not move')
 await page.keyboard.down('Control')
 await page.keyboard.press('z')
 await page.keyboard.up('Control')
 await new Promise((r) => setTimeout(r, 300))
-if ((await handlePos()) !== original) throw new Error('undo did not restore the point')
+if (!samePositions(await handlePos(), original)) throw new Error('undo did not restore the point')
 await page.keyboard.down('Control')
 await page.keyboard.down('Shift')
 await page.keyboard.press('z')
 await page.keyboard.up('Shift')
 await page.keyboard.up('Control')
 await new Promise((r) => setTimeout(r, 300))
-if ((await handlePos()) !== moved) throw new Error('redo did not move the point again')
+if (!samePositions(await handlePos(), moved)) throw new Error('redo did not move the point again')
 step('undo / redo of a moved point')
 
 // undo of deleting a piece (via the undo button)
@@ -192,6 +198,27 @@ while (Date.now() - t1 < 120000 && !pdf) {
 }
 if (!pdf) throw new Error('no pdf downloaded')
 step(`pdf ${pdf} (${Math.round(statSync(`${out}/${pdf}`).size / 1024)} KiB) after ${((Date.now() - t1) / 1000).toFixed(1)} s`)
+
+// DXF export for CNC milling
+await page.evaluate(() => [...document.querySelectorAll('button')].find((x) => x.textContent.includes('DXF für CNC')).click())
+const t2 = Date.now()
+let dxf = null
+while (Date.now() - t2 < 60000 && !dxf) {
+  await new Promise((r) => setTimeout(r, 300))
+  dxf = readdirSync(out).find((f) => f.endsWith('.dxf'))
+}
+if (!dxf) throw new Error('no dxf downloaded')
+step(`dxf ${dxf} (${Math.round(statSync(`${out}/${dxf}`).size / 1024)} KiB)`)
+
+// phone layout: tab bar switches areas, nothing scrolls sideways
+await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true })
+await page.waitForSelector('nav[aria-label] button', { visible: true, timeout: 10000 })
+await page.evaluate(() => [...document.querySelectorAll('nav[aria-label] button')].find((b) => b.textContent.includes('Ergebnis')).click())
+await page.waitForFunction(() => document.body.innerText.includes('Zuschnittliste'), { timeout: 10000 })
+const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+if (overflow > 0) throw new Error(`page scrolls sideways on a phone by ${overflow}px`)
+await page.screenshot({ path: `${out}/phone-results.png` })
+step('phone layout with tab bar')
 
 console.log(errors.length ? 'console errors:\n' + errors.join('\n') : 'no console errors')
 await browser.close()

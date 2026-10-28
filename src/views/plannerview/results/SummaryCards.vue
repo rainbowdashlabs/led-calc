@@ -19,7 +19,7 @@ const passLength = computed(() => passCount.value * (settings.plateThickness + s
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+  <div class="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
     <StatCard :label="t('streifen_gesamt_zu_kaufen')" :value="fmtLen(summary.strip_cut_total)" accent>
       {{ t('vorne_hinten_durchfuehrungen_auf_raster') }}
     </StatCard>

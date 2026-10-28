@@ -26,8 +26,15 @@ export const i18n = createI18n({
 })
 
 const locale = i18n.global.locale
-document.documentElement.lang = locale.value
-watch(locale, (v) => {
-  document.documentElement.lang = v
-  try { localStorage.setItem(STORAGE_KEY, v) } catch { /* ignore */ }
+
+/** Keep <html lang> and the page title in the chosen language. */
+function applyLocale(value) {
+  document.documentElement.lang = value
+  document.title = i18n.global.t('seitentitel')
+}
+
+applyLocale(locale.value)
+watch(locale, (value) => {
+  applyLocale(value)
+  try { localStorage.setItem(STORAGE_KEY, value) } catch { /* ignore */ }
 })

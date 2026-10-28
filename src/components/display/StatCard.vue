@@ -12,7 +12,7 @@ defineProps({
 <template>
   <BaseCard>
     <div class="text-xs text-zinc-500">{{ label }}</div>
-    <div class="text-2xl font-bold" :class="accent ? 'text-pink-400' : ''">{{ value }}</div>
+    <div class="text-xl font-bold sm:text-2xl" :class="accent ? 'text-pink-400' : ''">{{ value }}</div>
     <div class="text-xs text-zinc-500"><slot /></div>
   </BaseCard>
 </template>

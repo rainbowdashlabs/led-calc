@@ -7,6 +7,7 @@ import SecondaryButton from '@/components/button/SecondaryButton.vue'
 import CheckboxField from '@/components/input/CheckboxField.vue'
 import ColorField from '@/components/input/ColorField.vue'
 import SegmentedControl from '@/components/input/SegmentedControl.vue'
+import { useBreakpoint } from '@/composables/useBreakpoint'
 import { useEditor } from '@/composables/useEditor'
 import { usePreviewState, VIEWS } from '@/composables/usePreviewState'
 import { useSettings } from '@/composables/useSettings'
@@ -17,18 +18,19 @@ const { t } = useI18n()
 const preview = usePreviewState()
 const editor = useEditor()
 const { settings } = useSettings()
+const { isNarrow } = useBreakpoint()
 
 const views = computed(() => [
-  { value: VIEWS.FRONT, label: t('vorderseite') },
-  { value: VIEWS.BACK, label: t('rueckseite_gespiegelt'), disabled: editor.active.value },
+  { value: VIEWS.FRONT, label: t(isNarrow.value ? 'kurz_vorne' : 'vorderseite') },
+  { value: VIEWS.BACK, label: t(isNarrow.value ? 'kurz_hinten' : 'rueckseite_gespiegelt'), disabled: editor.active.value },
   { value: VIEWS.RESULT, label: t('ergebnis'), disabled: editor.active.value },
-  ...(settings.cutMode !== 'none' ? [{ value: VIEWS.CUT, label: t('ausschnitte'), disabled: editor.active.value }] : []),
+  ...(settings.cutMode !== 'none' ? [{ value: VIEWS.CUT, label: t(isNarrow.value ? 'kurz_ausschnitte' : 'ausschnitte'), disabled: editor.active.value }] : []),
 ])
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-3 py-2">
-    <SegmentedControl v-model="preview.view" :options="views" />
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-2 py-2 sm:px-3 print:hidden">
+    <SegmentedControl v-model="preview.view" :options="views" class="w-full sm:w-auto" />
     <div class="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
       <ColorField v-if="preview.view === VIEWS.RESULT" v-model="preview.wallColor" :label="t('wand')" inline />
       <CheckboxField v-model="preview.showDims" :label="t('masse')" class="!text-xs !text-zinc-400" />

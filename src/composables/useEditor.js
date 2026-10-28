@@ -262,7 +262,9 @@ export function useEditor() {
   function openMenu(pi, hi, x, y, pinned) {
     clearTimeout(menuTimer)
     const open = () => Object.assign(menu, { open: true, piece: pi, handle: hi, x, y, pinned })
-    if (pinned) open()
+    // a click opens at once; hovering waits briefly, unless the menu is already showing
+    // another point, then it follows the pointer immediately
+    if (pinned || menu.open) open()
     else menuTimer = setTimeout(open, MENU_DELAY_MS)
   }
   function leaveMenu() {

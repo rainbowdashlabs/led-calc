@@ -47,6 +47,10 @@ self.onmessage = async (ev) => {
         `json.dumps(api.compute(json.loads(params_json), bytes(font_bytes.to_py()), progress=js_progress, manual=json.loads(manual_json)))`,
       )
       self.postMessage({ id, ok: true, result: JSON.parse(out) })
+    } else if (type === 'dxf') {
+      pyodide.globals.set('plan_json', JSON.stringify(payload.plan))
+      const text = await pyodide.runPythonAsync('api.make_dxf(json.loads(plan_json))')
+      self.postMessage({ id, ok: true, result: text })
     } else if (type === 'pdf') {
       pyodide.globals.set('plan_json', JSON.stringify(payload.plan))
       pyodide.globals.set('pdf_opts', JSON.stringify(payload.options))

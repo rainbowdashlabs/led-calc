@@ -199,3 +199,36 @@ def test_closed_d_is_split_into_two_elements():
 def test_groove_has_no_bridges():
     r = api.compute({"text": "O", "cut_mode": "groove"}, font("fredoka.ttf"))
     assert r["cut"]["mode"] == "groove" and r["cut"]["bridges"] == [] and r["cut"]["depth"] > 0
+
+
+# ----------------------------------------------------------------------------- dxf
+
+
+def _dxf_entities(text):
+    """(entity type, layer) of every top-level entity in a DXF R12 text."""
+    lines = text.splitlines()
+    pairs = list(zip(lines[0::2], lines[1::2], strict=False))
+    entities = []
+    for i, (code, value) in enumerate(pairs):
+        if code.strip() == "0" and value in ("POLYLINE", "CIRCLE"):
+            layer = next(v for c, v in pairs[i + 1 :] if c.strip() == "8")
+            entities.append((value, layer))
+    return entities
+
+
+def test_dxf_contains_all_layers_and_geometry():
+    plan = api.compute({"text": "Oa", "mode": "single", "cut_mode": "through"}, font("fredoka.ttf"))
+    text = api.make_dxf(plan)
+    assert text.startswith("999") and text.rstrip().endswith("EOF")
+    assert "AC1009" in text
+    entities = _dxf_entities(text)
+    layers = {layer for _, layer in entities}
+    assert {"PLATTE", "SCHRIFT", "LED_MITTELLINIE", "KANAL", "STEGE", "BOHRUNGEN", "RUECKSEITE_ROUTING"} <= layers
+    assert sum(1 for kind, _ in entities if kind == "CIRCLE") == len(plan["holes"])
+    assert sum(1 for kind, layer in entities if layer == "LED_MITTELLINIE") == len(plan["pieces"])
+
+
+def test_dxf_without_cut_outs_has_no_channel_layer_entities():
+    plan = api.compute({"text": "Hi"}, font("bebas.ttf"))
+    layers = {layer for _, layer in _dxf_entities(api.make_dxf(plan))}
+    assert "KANAL" not in layers and "STEGE" not in layers

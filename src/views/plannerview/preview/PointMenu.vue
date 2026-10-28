@@ -1,4 +1,5 @@
 <script setup>
+import { useWindowSize } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/display/AppIcon.vue'
 import PointTypeIcon from '@/components/display/PointTypeIcon.vue'
@@ -18,6 +19,7 @@ const PRESETS = [
 const { t } = useI18n()
 const editor = useEditor()
 const menu = editor.menu
+const { width: viewportWidth, height: viewportHeight } = useWindowSize()
 </script>
 
 <template>
@@ -25,7 +27,7 @@ const menu = editor.menu
     <div
       v-if="menu.open && editor.active.value"
       class="fixed z-40 grid grid-cols-3 gap-1 rounded-lg border border-zinc-700 bg-zinc-900/95 p-1.5 shadow-2xl shadow-black/60 backdrop-blur"
-      :style="{ left: `${menu.x + 12}px`, top: `${menu.y + 12}px` }"
+      :style="{ left: `${Math.min(menu.x + 12, viewportWidth - 160)}px`, top: `${Math.min(menu.y + 12, viewportHeight - 170)}px` }"
       role="menu"
       :aria-label="t('punkt_menue')"
       @mouseenter="menu.hovered = true"
@@ -75,5 +77,11 @@ const menu = editor.menu
 
 .menu-tile {
   @apply grid h-10 w-10 place-items-center rounded-md transition hover:bg-pink-500/15;
+}
+
+@media (pointer: coarse) {
+  .menu-tile {
+    @apply h-12 w-12;
+  }
 }
 </style>

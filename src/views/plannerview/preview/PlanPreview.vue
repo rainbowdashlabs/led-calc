@@ -3,6 +3,7 @@
 // Views: 'front' (laying plan), 'back' (mirrored, as seen from behind) and
 // 'result' (simulated finished sign without the font in the background).
 // In edit mode the strip paths can be reshaped by dragging their control points.
+import { useElementSize } from '@vueuse/core'
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { buildPath } from '@/util/geometry'
@@ -22,6 +23,7 @@ const props = defineProps({
   zoom: { type: Number, default: 1 },
   draft: { type: Array, default: null }, // points of a piece being drawn
   snapTarget: { type: Object, default: null }, // end a dragged end would be joined to
+  coarsePointer: { type: Boolean, default: false }, // touch screen: bigger points, tap opens the menu
 })
 const emit = defineEmits(['hover', 'select', 'move-handle', 'drag-end', 'insert-handle', 'toggle-point', 'point-menu', 'point-leave', 'draft-point', 'draft-finish', 'update:zoom'])
 
@@ -35,7 +37,13 @@ const cutView = computed(() => props.view === 'cut' && props.plan.cut)
 const transform = computed(() => (back.value ? `matrix(-1 0 0 -1 ${W.value} ${H.value})` : `matrix(1 0 0 -1 0 ${H.value})`))
 const tx = (x) => (back.value ? W.value - x : x)
 const ty = (y) => H.value - y
-const fs = computed(() => Math.max(6, Math.max(W.value, H.value) / 75) / zoom.value)
+// labels keep a constant size on screen: convert pixels to plan millimetres
+const LABEL_PX = computed(() => (width.value && width.value < 640 ? 9 : 12))
+const mmPerPx = computed(() => {
+  const vb = viewBox.value.split(' ').map(Number)
+  return width.value && height.value ? Math.max(vb[2] / width.value, vb[3] / height.value) : 1
+})
+const fs = computed(() => LABEL_PX.value * mmPerPx.value)
 
 // ---- zoom & pan (zoom is controlled from outside via v-model:zoom)
 const zoom = computed({ get: () => props.zoom, set: (v) => emit('update:zoom', Math.min(20, Math.max(0.5, v))) })
@@ -55,6 +63,7 @@ const viewBox = computed(() => {
 })
 const svg = ref(null)
 const layer = ref(null)
+const { width, height } = useElementSize(svg)
 function screenToSvg(ev, el = svg.value) {
   const pt = svg.value.createSVGPoint()
   pt.x = ev.clientX
@@ -137,8 +146,9 @@ function onDragMove(ev) {
   drag.moved = true
   emit('move-handle', drag.pi, drag.hi, [Math.round(p.x * 100) / 100, Math.round(p.y * 100) / 100])
 }
-function onDragEnd() {
+function onDragEnd(ev) {
   if (drag?.moved) emit('drag-end', drag.pi, drag.hi)
+  else if (drag && ev?.pointerType === 'touch') emit('point-menu', drag.pi, drag.hi, ev.clientX, ev.clientY, true) // tap = menu
   drag = null
 }
 function onPieceDblClick(ev, pi) {
@@ -168,7 +178,8 @@ const pieces = computed(() => {
 const pts = (arr) => arr.map(([x, y]) => `${x},${y}`).join(' ')
 const ringPath = (rings) => rings.map((r) => 'M' + r.map(([x, y]) => `${x},${y}`).join('L') + 'Z').join('')
 const holeHasOut = (h) => h.uses.some((u) => u[1] === 'out')
-const hs = (pi) => (props.selected === pi ? 2.4 : 1.7) / Math.sqrt(zoom.value)
+// point size in screen pixels; bigger on touch screens
+const hs = (pi) => (props.selected === pi ? 1.4 : 1) * (props.coarsePointer ? 9 : 5) * mmPerPx.value
 const fmt = (mm) => `${(mm / 10).toLocaleString('de-DE', { maximumFractionDigits: 1 })} cm`
 
 defineExpose({ resetView })

@@ -19,8 +19,8 @@ const preview = usePreviewState()
 
 <template>
   <TitledCard :title="t('verlegereihenfolge')">
-    <div class="max-h-96 overflow-y-auto">
-      <table class="w-full text-sm">
+    <div class="max-h-96 overflow-auto">
+      <table class="w-full min-w-[30rem] text-sm">
         <thead class="sticky top-0 bg-zinc-900 text-xs text-zinc-500">
           <tr>
             <th class="px-3 py-1.5 text-left">#</th>

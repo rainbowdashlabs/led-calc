@@ -1,1 +1,33 @@
 @import "tailwindcss";
+
+/* Base page styles; component styles live in the components. */
+html {
+  background: var(--color-zinc-950);
+  color: var(--color-zinc-100);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Respect the system setting for reduced motion: no transitions or animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Printing the page itself (the PDF is the real template): light, without controls. */
+@media print {
+  html {
+    background: white;
+    color: black;
+    color-scheme: light;
+  }
+  @page {
+    margin: 12mm;
+  }
+}

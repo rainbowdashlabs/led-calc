@@ -38,8 +38,15 @@ and documentation are English.
   double-click (icons with tooltips). Every edit can be undone / redone (Ctrl+Z, Ctrl+Shift+Z).
   Lengths, holes and routing are recomputed.
 - **Save / load**: JSON file (incl. an uploaded font), share code or link.
+- **Every screen**: side by side on desktops; on phones and tablets a tab bar switches
+  between settings, preview and results. Touch screens get bigger points and tap menus;
+  reduced motion and printing are respected. Installable (web manifest) and with social
+  media previews (Open Graph / Twitter cards).
 - **PDF**: overview & cut list, 1:1 front laying plan, 1:1 mirrored back routing, with
   registration crosses, glue areas and a 100 mm check scale.
+- **CNC (DXF)**: DXF R12 in millimetres for any CAM program, one layer per purpose: plate,
+  lettering, LED centre line, channel, bridges, holes and the back routing (mirrored for
+  machining from the back). The CAM program creates the tool paths.
 
 ## Architecture
 
@@ -56,6 +63,7 @@ python/neonplan/          Python core (CPython and Pyodide)
   cutout.py               channels and bridges for recessed strips
   api.py                  compute() / make_pdf() entry points
   pdf.py, pdfwriter.py    printable templates (dependency-free PDF writer)
+  dxf.py                  DXF export for CNC milling
   i18n.py                 German / English texts for messages and PDF
   __main__.py             command line interface
 python/tests/             pytest suite
@@ -102,6 +110,7 @@ PYTHONPATH=python python -m neonplan "Hallo" --font public/fonts/pacifico.ttf \
 ```
 
 `python scripts/prepare_fonts.py` regenerates the bundled fonts from google/fonts.
+`node scripts/render_social.mjs` renders the social preview image and the app icons.
 
 ## Deployment
 

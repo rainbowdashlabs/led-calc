@@ -6,19 +6,19 @@ import SecondaryButton from '@/components/button/SecondaryButton.vue'
 import HintText from '@/components/display/HintText.vue'
 import LanguageToggle from '@/components/input/LanguageToggle.vue'
 import { useShare } from '@/composables/useShare'
+import AppTitle from './AppTitle.vue'
 import ShareDialog from './ShareDialog.vue'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const share = useShare()
 const shareOpen = ref(false)
 </script>
 
 <template>
   <header class="space-y-2">
-    <div class="flex items-start justify-between gap-2">
-      <h1 class="text-xl font-bold tracking-tight">
-        <span class="text-pink-400 drop-shadow-[0_0_8px_rgba(255,60,172,0.8)]">LED-Neon</span> {{ locale === 'de' ? 'Planer' : 'Planner' }}
-      </h1>
+    <!-- on small screens title and language live in the MobileHeader -->
+    <div class="hidden items-start justify-between gap-2 lg:flex">
+      <AppTitle class="text-xl" />
       <LanguageToggle />
     </div>
     <HintText>{{ t('streifenlaenge_routing_hinter_der_platte') }}</HintText>

@@ -9,7 +9,7 @@ import SidebarHeader from './SidebarHeader.vue'
 </script>
 
 <template>
-  <aside class="space-y-5 border-r border-zinc-800 bg-zinc-950 p-4 pb-10 lg:h-screen lg:w-96 lg:shrink-0 lg:overflow-y-auto">
+  <aside class="mx-auto max-w-2xl space-y-5 bg-zinc-950 p-4 pb-10 lg:h-dvh lg:w-96 lg:max-w-none lg:shrink-0 lg:overflow-y-auto lg:border-r lg:border-zinc-800 xl:w-[26rem] 2xl:w-[28rem]">
     <SidebarHeader />
     <TextSection />
     <LayingSection />
