@@ -38,14 +38,18 @@ const svg = ref(null)
         :edit-mode="editor.active.value"
         :edit-pieces="editor.pieces.value"
         :selected="editor.selected.value"
+        :draft="editor.draft.value"
+        :snap-target="editor.snapTarget.value"
         @hover="preview.hover = $event"
         @select="editor.selected.value = $event"
         @move-handle="editor.moveHandle"
-        @drag-end="editor.commit"
+        @drag-end="editor.dropHandle"
         @insert-handle="editor.insertHandle"
         @toggle-point="editor.togglePoint"
         @point-menu="editor.openMenu"
         @point-leave="editor.leaveMenu"
+        @draft-point="editor.addDraftPoint"
+        @draft-finish="editor.finishDrawing"
       />
     </div>
     <PreviewLegend :plan="plan" />

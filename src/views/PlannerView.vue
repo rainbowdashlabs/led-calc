@@ -27,7 +27,12 @@ useKeyboard({
   'mod+y': editor.redo,
   delete: editor.deleteSelected,
   backspace: editor.deleteSelected,
-  escape: () => { editor.selected.value = null; editor.closeMenu() },
+  enter: () => editor.draft.value && editor.finishDrawing(false),
+  escape: () => {
+    if (editor.draft.value) return editor.cancelDrawing()
+    editor.selected.value = null
+    editor.closeMenu()
+  },
 }, () => editor.active.value)
 
 onMounted(async () => {

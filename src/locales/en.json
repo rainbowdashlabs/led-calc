@@ -210,5 +210,9 @@
  "punkt_menue": "Point type",
  "editor_hint": "Drag points · double-click a point: round ↔ corner · hover a point: point type · double-click a path: insert point · Del: delete piece · Ctrl+Z: undo",
  "rueckgaengig": "Undo (Ctrl+Z)",
- "wiederholen": "Redo (Ctrl+Shift+Z)"
+ "wiederholen": "Redo (Ctrl+Shift+Z)",
+ "neues_stueck": "Draw new piece",
+ "abbrechen": "Cancel",
+ "zeichnen_hint": "Click: add point · double-click or Enter: done · click the first (green) point: closed piece · Esc: cancel",
+ "hier_schneiden": "Cut here (split piece / open ring)"
 }

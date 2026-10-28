@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . && ruff check python scripts",
-    "lint:fix": "eslint . --fix && ruff check --fix python scripts",
+    "lint": "eslint . --max-warnings 0 && ruff check python scripts && ruff format --check python scripts",
+    "lint:fix": "eslint . --fix && ruff check --fix python scripts && ruff format python scripts",
     "test": "vitest run && python -m pytest -q"
   },
   "dependencies": {

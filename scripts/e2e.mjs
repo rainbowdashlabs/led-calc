@@ -124,6 +124,49 @@ await page.click('[aria-label="Rückgängig (Strg+Z)"]')
 await new Promise((r) => setTimeout(r, 300))
 if ((await pieceCount()) !== piecesBefore) throw new Error('undo did not restore the piece')
 step('undo of a deleted piece')
+
+// draw two new pieces in the empty margin of the plate, then join them by dragging an end
+const plate = await (await page.$('svg rect')).boundingBox()
+const at = (fx, fy) => [plate.x + plate.width * fx, plate.y + plate.height * fy]
+const clickAt = async ([x, y]) => { await page.mouse.click(x, y); await new Promise((r) => setTimeout(r, 120)) }
+const drawPiece = async (points) => {
+  await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => b.textContent.includes('Neues Stück zeichnen')).click())
+  for (const pt of points) await clickAt(pt)
+  await page.keyboard.press('Enter')
+  await new Promise((r) => setTimeout(r, 300))
+}
+const beforeDraw = await pieceCount()
+await drawPiece([at(0.25, 0.93), at(0.35, 0.9), at(0.45, 0.93)])
+await drawPiece([at(0.55, 0.93), at(0.65, 0.9)])
+if ((await pieceCount()) !== beforeDraw + 2) throw new Error('drawing did not add two pieces')
+step('draw new pieces')
+
+const handles = await page.$$('svg .cursor-move')
+const endOfFirst = await handles[handles.length - 3].boundingBox()   // last point of the first new piece
+const startOfSecond = await handles[handles.length - 2].boundingBox() // first point of the second new piece
+await page.mouse.move(startOfSecond.x + startOfSecond.width / 2, startOfSecond.y + startOfSecond.height / 2)
+await page.mouse.down()
+await page.mouse.move(endOfFirst.x + endOfFirst.width / 2, endOfFirst.y + endOfFirst.height / 2, { steps: 10 })
+await page.mouse.up()
+await new Promise((r) => setTimeout(r, 300))
+if ((await pieceCount()) !== beforeDraw + 1) throw new Error('dragging an end onto another end did not join the pieces')
+await page.keyboard.down('Control')
+await page.keyboard.press('z')
+await page.keyboard.up('Control')
+await new Promise((r) => setTimeout(r, 300))
+if ((await pieceCount()) !== beforeDraw + 2) throw new Error('undo did not split the joined pieces again')
+step('join pieces by dragging an end, undo')
+
+// cut a piece at an inner point via the point menu
+const firstNew = (await page.$$('svg .cursor-move')).at(-4) // middle point of the first drawn piece
+const fb = await firstNew.boundingBox()
+await page.mouse.move(fb.x + fb.width / 2, fb.y + fb.height / 2)
+await page.waitForSelector('[role=menu] [aria-label^="Hier schneiden"]', { timeout: 5000 })
+await page.click('[role=menu] [aria-label^="Hier schneiden"]')
+await new Promise((r) => setTimeout(r, 300))
+if ((await pieceCount()) !== beforeDraw + 3) throw new Error('cutting did not split the piece')
+step('cut a piece at a point')
+await page.screenshot({ path: `${out}/draw.png` })
 await clickText('Bearbeitung beenden')
 
 // share code round trip

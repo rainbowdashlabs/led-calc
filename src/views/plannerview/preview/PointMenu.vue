@@ -24,7 +24,7 @@ const menu = editor.menu
   <Teleport to="body">
     <div
       v-if="menu.open && editor.active.value"
-      class="fixed z-40 grid grid-cols-4 gap-1 rounded-lg border border-zinc-700 bg-zinc-900/95 p-1.5 shadow-2xl shadow-black/60 backdrop-blur"
+      class="fixed z-40 grid grid-cols-3 gap-1 rounded-lg border border-zinc-700 bg-zinc-900/95 p-1.5 shadow-2xl shadow-black/60 backdrop-blur"
       :style="{ left: `${menu.x + 12}px`, top: `${menu.y + 12}px` }"
       role="menu"
       :aria-label="t('punkt_menue')"
@@ -44,6 +44,17 @@ const menu = editor.menu
         @click="editor.applyPreset(menu.piece, menu.handle, key)"
       >
         <PointTypeIcon :type="key" />
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        :aria-label="t('hier_schneiden')"
+        :title="t('hier_schneiden')"
+        :disabled="!editor.canCut(menu.piece, menu.handle)"
+        class="menu-tile text-zinc-300 disabled:cursor-not-allowed disabled:opacity-30"
+        @click="editor.cut(menu.piece, menu.handle)"
+      >
+        <AppIcon name="scissors" :size="20" />
       </button>
       <button
         type="button"

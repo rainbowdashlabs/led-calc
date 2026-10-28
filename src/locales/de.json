@@ -210,5 +210,9 @@
  "punkt_menue": "Punkttyp",
  "editor_hint": "Punkt ziehen · Doppelklick auf einen Punkt: rund ↔ eckig · Maus über einem Punkt: Punkttyp · Doppelklick auf eine Bahn: Punkt einfügen · Entf: Stück löschen · Strg+Z: rückgängig",
  "rueckgaengig": "Rückgängig (Strg+Z)",
- "wiederholen": "Wiederholen (Strg+Umschalt+Z)"
+ "wiederholen": "Wiederholen (Strg+Umschalt+Z)",
+ "neues_stueck": "Neues Stück zeichnen",
+ "abbrechen": "Abbrechen",
+ "zeichnen_hint": "Klicken: Punkt setzen · Doppelklick oder Enter: fertig · Klick auf den ersten (grünen) Punkt: geschlossenes Stück · Esc: abbrechen",
+ "hier_schneiden": "Hier schneiden (Stück teilen / Ring öffnen)"
 }

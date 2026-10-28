@@ -5,6 +5,7 @@
 // In edit mode the strip paths can be reshaped by dragging their control points.
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { buildPath } from '@/util/geometry'
 
 const { t } = useI18n()
 
@@ -19,8 +20,10 @@ const props = defineProps({
   selected: { type: Number, default: null },
   wall: { type: String, default: '#0b0b0f' },
   zoom: { type: Number, default: 1 },
+  draft: { type: Array, default: null }, // points of a piece being drawn
+  snapTarget: { type: Object, default: null }, // end a dragged end would be joined to
 })
-const emit = defineEmits(['hover', 'select', 'move-handle', 'drag-end', 'insert-handle', 'toggle-point', 'point-menu', 'point-leave', 'update:zoom'])
+const emit = defineEmits(['hover', 'select', 'move-handle', 'drag-end', 'insert-handle', 'toggle-point', 'point-menu', 'point-leave', 'draft-point', 'draft-finish', 'update:zoom'])
 
 const W = computed(() => props.plan.plate.w)
 const H = computed(() => props.plan.plate.h)
@@ -75,6 +78,7 @@ function onBgDown(ev) {
   ev.currentTarget.setPointerCapture(ev.pointerId)
 }
 function onBgMove(ev) {
+  if (drawing.value) cursor.value = toPlan(ev)
   if (drag) return onDragMove(ev)
   if (!pan) return
   const r = svg.value.getBoundingClientRect()
@@ -85,13 +89,43 @@ function onBgMove(ev) {
 }
 function onBgUp(ev) {
   if (drag) return onDragEnd(ev)
-  if (pan && Math.hypot(ev.clientX - pan.x, ev.clientY - pan.y) < 3 && props.editMode) emit('select', null)
+  const click = pan && Math.hypot(ev.clientX - pan.x, ev.clientY - pan.y) < 3
   pan = null
+  if (!click || !props.editMode) return
+  if (drawing.value) onDraftClick(ev)
+  else emit('select', null)
 }
+
+// ---- drawing a new piece
+const drawing = computed(() => props.editMode && props.draft !== null)
+const cursor = ref(null)
+const toPlan = (ev) => {
+  const p = screenToSvg(ev, layer.value)
+  return [Math.round(p.x * 100) / 100, Math.round(p.y * 100) / 100]
+}
+/** The first point closes the piece when it is clicked again. */
+const closable = computed(() => drawing.value && props.draft.length >= 3)
+function nearFirst(xy) {
+  const first = props.draft[0]
+  return first && Math.hypot(first[0] - xy[0], first[1] - xy[1]) < 4 * hs(null)
+}
+function onDraftClick(ev) {
+  const xy = toPlan(ev)
+  if (closable.value && nearFirst(xy)) emit('draft-finish', true)
+  else emit('draft-point', xy)
+}
+function onDraftDblClick() {
+  if (drawing.value) emit('draft-finish', false)
+}
+const draftPath = computed(() => {
+  if (!drawing.value || props.draft.length < 2) return []
+  return buildPath(props.draft, null, null, false)
+})
 
 // ---- editing
 let drag = null
 function onHandleDown(ev, pi, hi) {
+  if (drawing.value) return
   ev.stopPropagation()
   if (ev.button === 2) return
   drag = { pi, hi, moved: false }
@@ -104,7 +138,7 @@ function onDragMove(ev) {
   emit('move-handle', drag.pi, drag.hi, [Math.round(p.x * 100) / 100, Math.round(p.y * 100) / 100])
 }
 function onDragEnd() {
-  if (drag?.moved) emit('drag-end')
+  if (drag?.moved) emit('drag-end', drag.pi, drag.hi)
   drag = null
 }
 function onPieceDblClick(ev, pi) {
@@ -121,7 +155,7 @@ function onHandleDblClick(ev, pi, hi) {
   emit('toggle-point', pi, hi)
 }
 function onHandleEnter(ev, pi, hi) {
-  if (!drag) emit('point-menu', pi, hi, ev.clientX, ev.clientY, false)
+  if (!drag && !drawing.value) emit('point-menu', pi, hi, ev.clientX, ev.clientY, false)
 }
 
 const pieces = computed(() => {
@@ -142,7 +176,7 @@ defineExpose({ resetView })
 
 <template>
   <svg
-    ref="svg" :viewBox="viewBox" class="h-full w-full touch-none select-none" :class="editMode ? 'cursor-crosshair' : 'cursor-grab'"
+    ref="svg" :viewBox="viewBox" class="h-full w-full touch-none select-none" :class="editMode ? 'cursor-crosshair' : 'cursor-grab'" @dblclick="onDraftDblClick"
     @wheel.prevent="onWheel" @pointerdown="onBgDown" @pointermove="onBgMove" @pointerup="onBgUp" @contextmenu.prevent
   >
     <defs>
@@ -212,7 +246,7 @@ defineExpose({ resetView })
               fill="none" :stroke="color" :stroke-width="sw" stroke-linecap="round" stroke-linejoin="round"
               :stroke-opacity="(highlight && highlight !== p.no) || (editMode && selected !== null && selected !== p.idx) ? 0.3 : 0.95"
               @mouseenter="emit('hover', p.no)" @mouseleave="emit('hover', null)"
-              @pointerdown.stop="editMode && emit('select', p.idx)" @dblclick="editMode && onPieceDblClick($event, p.idx)"
+              @pointerdown.stop="editMode && !drawing && emit('select', p.idx)" @dblclick="editMode && !drawing && onPieceDblClick($event, p.idx)"
             />
           </g>
           <component
@@ -267,6 +301,25 @@ defineExpose({ resetView })
               />
             </template>
           </g>
+        </template>
+
+        <!-- end that a dragged end would be joined to -->
+        <circle
+          v-if="editMode && snapTarget" :cx="snapTarget.xy[0]" :cy="snapTarget.xy[1]" :r="4 * hs(null)"
+          fill="none" stroke="#22c55e" :stroke-width="1.2 / Math.sqrt(zoom)" pointer-events="none"
+        />
+
+        <!-- piece being drawn -->
+        <template v-if="drawing">
+          <polyline v-if="draftPath.length" :points="pts(draftPath)" fill="none" :stroke="color" :stroke-width="sw" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round" pointer-events="none" />
+          <line
+            v-if="draft.length && cursor" :x1="draft.at(-1)[0]" :y1="draft.at(-1)[1]" :x2="cursor[0]" :y2="cursor[1]"
+            :stroke="color" :stroke-width="0.8 / Math.sqrt(zoom)" stroke-dasharray="3 2" pointer-events="none"
+          />
+          <circle
+            v-for="(pt, i) in draft" :key="'d' + i" :cx="pt[0]" :cy="pt[1]" :r="(i === 0 && closable ? 2.2 : 1.4) * hs(null)"
+            :fill="i === 0 && closable ? '#22c55e' : '#fff'" stroke="#be185d" :stroke-width="0.6 / Math.sqrt(zoom)" pointer-events="none"
+          />
         </template>
 
         <!-- feed point -->

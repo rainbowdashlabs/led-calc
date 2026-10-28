@@ -564,6 +564,8 @@ def compute(params: dict, font_bytes: bytes, progress=None, manual: list | None 
     for k, p in enumerate(ordered, start=1):
         by_glyph.setdefault(p.glyph, []).append(k)
     for gi, nums in sorted(by_glyph.items()):
+        if gi < 0:
+            continue  # frame and freely drawn pieces belong to no letter
         roles = [ordered[n - 1].role for n in nums]
         inner = any(ordered[n - 1].inner for n in nums)
         if len(nums) <= 1 and not inner and "dot" not in roles:

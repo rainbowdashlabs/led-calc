@@ -178,3 +178,90 @@ export function presetOf(e, i) {
   }
   return null
 }
+
+/** Same piece with its direction reversed (handles, point and segment types). */
+export function reversed(piece) {
+  return {
+    ...piece,
+    handles: [...piece.handles].reverse(),
+    types: [...piece.types].reverse(),
+    segs: [...piece.segs].reverse(),
+  }
+}
+
+/**
+ * Join two open pieces end to end. `endA` / `endB` are 'start' | 'end'; the two ends meet
+ * in one smooth point. Joining both ends of the same piece closes it into a ring.
+ * Returns the editable fields of the joined piece (handles, types, segs, closed).
+ */
+export function joinEnds(a, endA, b, endB) {
+  if (a === b) {
+    // closing a ring: the dragged end coincides with the other end and is dropped
+    const p = endA === 'end' ? a : reversed(a)
+    const types = p.types.slice(0, -1)
+    types[0] = 'smooth'
+    return { handles: p.handles.slice(0, -1), types, segs: [...p.segs], closed: true }
+  }
+  const first = endA === 'end' ? a : reversed(a) // the joining end is its last point
+  const second = endB === 'start' ? b : reversed(b) // the joining end is its first point
+  return {
+    handles: [...first.handles, ...second.handles.slice(1)],
+    types: [...first.types.slice(0, -1), 'smooth', ...second.types.slice(1)],
+    segs: [...first.segs, ...second.segs],
+    closed: false,
+  }
+}
+
+/** Move point p towards q by `distance`, but at most 40 % of the way. */
+function pullTowards(p, q, distance) {
+  const d = sub(q, p)
+  const l = len(d)
+  if (l < 1e-9) return p
+  const step = Math.min(distance, 0.4 * l)
+  return r2([p[0] + (d[0] / l) * step, p[1] + (d[1] / l) * step])
+}
+
+/**
+ * Cut a piece at handle `i`. An open piece becomes two pieces, a ring becomes one open
+ * piece. The point is duplicated and both new ends are pulled `gap` / 2 apart along the
+ * path. Cutting at an open end is not possible and returns null.
+ * Returns a list of editable fields (handles, types, segs, closed).
+ */
+export function cutAt(piece, i, gap = 6) {
+  const n = piece.handles.length
+  const { handles, types, segs } = piece
+  const half = gap / 2
+  if (piece.closed) {
+    if (n < 3) return null
+    // rotate so the ring starts and ends at the cut point
+    const order = [...Array(n).keys()].map((k) => (i + k) % n)
+    const h = [...order.map((k) => handles[k]), handles[i]]
+    const ty = [...order.map((k) => types[k]), 'smooth']
+    ty[0] = 'smooth'
+    const sg = order.map((k) => segs[k])
+    h[0] = pullTowards(h[0], h[1], half)
+    h[n] = pullTowards(h[n], h[n - 1], half)
+    return [{ handles: h, types: ty, segs: sg, closed: false }]
+  }
+  if (i <= 0 || i >= n - 1) return null
+  const first = {
+    handles: handles.slice(0, i + 1),
+    types: [...types.slice(0, i), 'smooth'],
+    segs: segs.slice(0, i),
+    closed: false,
+  }
+  const second = {
+    handles: handles.slice(i),
+    types: ['smooth', ...types.slice(i + 1)],
+    segs: segs.slice(i),
+    closed: false,
+  }
+  first.handles[i] = pullTowards(handles[i], handles[i - 1], half)
+  second.handles[0] = pullTowards(handles[i], handles[i + 1], half)
+  return [first, second]
+}
+
+/** Whether `cutAt` is possible at handle i. */
+export function canCutAt(piece, i) {
+  return piece.closed ? piece.handles.length >= 3 : i > 0 && i < piece.handles.length - 1
+}
